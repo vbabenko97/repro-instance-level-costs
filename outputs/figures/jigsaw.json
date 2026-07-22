@@ -1,0 +1,8 @@
+[
+  {
+    "label":"Jigsaw TF-IDF (repro)",
+    "nec":2.02,
+    "error":5.91,
+    "ratio_err_over_nec":2.92
+  }
+]

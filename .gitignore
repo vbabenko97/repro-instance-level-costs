@@ -1,0 +1,24 @@
+# Downloaded/derived inputs — regenerable, not committed (see DATA_NOT_INCLUDED.md)
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Virtual envs / tooling
+.venv/
+venv/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Local logbook / bucket artifacts (never publish)
+.trackio/
+.trackio_*/

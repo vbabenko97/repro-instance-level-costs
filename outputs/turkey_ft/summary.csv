@@ -1,0 +1,5 @@
+model,nec,error
+frozen (toy subset),3.93,6.8
+top-block FT (toy subset),3.87,6.67
+"frozen (paper, full)",4.2,6.7
+"ResNet-FT (paper, full)",2.3,4.8

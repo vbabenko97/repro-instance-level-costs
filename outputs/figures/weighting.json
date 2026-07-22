@@ -1,0 +1,26 @@
+[
+  {
+    "dataset":"Jigsaw",
+    "std_nec":2.02,
+    "wt_nec":2.26,
+    "rel_pct":11.4
+  },
+  {
+    "dataset":"Turkey",
+    "std_nec":4.06,
+    "wt_nec":3.59,
+    "rel_pct":-11.6
+  },
+  {
+    "dataset":"NHANES",
+    "std_nec":15.7,
+    "wt_nec":15.4,
+    "rel_pct":-1.9
+  },
+  {
+    "dataset":"Synthetic",
+    "std_nec":2.81,
+    "wt_nec":2.81,
+    "rel_pct":0.2
+  }
+]

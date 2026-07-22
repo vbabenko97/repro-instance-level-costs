@@ -1,0 +1,19 @@
+This repository is an independent reproduction. The MIT License above covers the
+reproduction code and analysis authored here.
+
+Attribution and provenance
+---------------------------
+
+Paper reproduced:
+  "Instance-Level Costs for Nuanced Classifier Evaluation" (Kang & Mussmann)
+  ICML 2026 · OpenReview id qMI1xD8O3x · arXiv:2605.03135
+
+Data (NOT redistributed here; downloaded by the scripts from public sources under
+their own terms):
+  - Jigsaw Unintended Bias in Toxicity Classification — via Hugging Face dataset
+    `TheMrguiller/jigsaw-unintended-bias-in-toxicity-classification`.
+  - Turkey (DCIC benchmark) — Zenodo 10.5281/zenodo.8115942.
+  - NHANES 2013-2014 — U.S. CDC / NCHS public data files.
+
+Please cite the original paper and the respective dataset sources in downstream work.
+This reproduction is not affiliated with or endorsed by the paper's authors.

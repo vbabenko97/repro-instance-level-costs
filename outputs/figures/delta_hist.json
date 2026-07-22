@@ -1,0 +1,30 @@
+[
+  {
+    "dataset":"Jigsaw (Eq.3 votes)",
+    "n":1804868,
+    "mean_abs_delta":1.3967435101,
+    "frac_pos":0.0799692831,
+    "frac_low_cost_|d|<0.5":0.0742868731
+  },
+  {
+    "dataset":"Turkey (Eq.3 votes)",
+    "n":8040,
+    "mean_abs_delta":1.9950043104,
+    "frac_pos":0.8798507463,
+    "frac_low_cost_|d|<0.5":0.0491293532
+  },
+  {
+    "dataset":"NHANES (Eq.4 SBP-130)",
+    "n":7457,
+    "mean_abs_delta":18.1966385052,
+    "frac_pos":0.2205980957,
+    "frac_low_cost_|d|<0.5":0.0087166421
+  },
+  {
+    "dataset":"Rating demo (score-4)",
+    "n":9956,
+    "mean_abs_delta":1.719164323,
+    "frac_pos":0.5726195259,
+    "frac_low_cost_|d|<0.5":0.141321816
+  }
+]

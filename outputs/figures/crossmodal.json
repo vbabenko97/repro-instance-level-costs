@@ -1,0 +1,26 @@
+[
+  {
+    "label":"Jigsaw text",
+    "nec":2.02,
+    "error":5.91,
+    "ratio_err_over_nec":2.92
+  },
+  {
+    "label":"Turkey image",
+    "nec":4.06,
+    "error":6.7,
+    "ratio_err_over_nec":1.65
+  },
+  {
+    "label":"NHANES tabular",
+    "nec":15.7,
+    "error":21.57,
+    "ratio_err_over_nec":1.37
+  },
+  {
+    "label":"Synthetic",
+    "nec":2.81,
+    "error":10.58,
+    "ratio_err_over_nec":3.77
+  }
+]
