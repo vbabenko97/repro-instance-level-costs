@@ -1,16 +1,37 @@
 # Reproduction — "Instance-Level Costs for Nuanced Classifier Evaluation"
 
-Independent reproduction of ICML 2026 paper #31878 (OpenReview `qMI1xD8O3x`,
-arXiv:2605.03135), Kang & Mussmann. Part of the HF × AlphaXiv ICML-2026 agent
-reproduction challenge.
+Agent-driven, independent reproduction of ICML 2026 paper #31878, Kang & Mussmann
+(OpenReview [`qMI1xD8O3x`](https://openreview.net/forum?id=qMI1xD8O3x), arXiv:2605.03135),
+for the HF × AlphaXiv ICML-2026 agent reproduction challenge. The paper proposes
+**Normalized Excess Cost (NEC)**, a metric that weights classification errors by
+per-example costs `|Δ|` and reduces to error rate when costs are uniform. This repo
+re-tests its claims on public text, image and tabular data.
 
-The paper proposes **Normalized Excess Cost (NEC)**, a metric that weights
-classification errors by per-example costs `|Δ|` and reduces to error rate when
-costs are uniform. This reproduction verifies the metric's mechanism and the
-training-strategy results on the datasets that are publicly obtainable.
+![Grouped bar chart of NEC and error rate in percent: Jigsaw text 2.0 and 5.9, Turkey image 4.1 and 6.7, NHANES tabular 15.7 and 21.6, Synthetic 2.8 and 10.6](outputs/figures/crossmodal.png)
 
-- **Live logbook (Trackio Space):** https://huggingface.co/spaces/vbabenko97/repro-instance-level-costs
-- **Paper:** OpenReview [`qMI1xD8O3x`](https://openreview.net/forum?id=qMI1xD8O3x) · arXiv:2605.03135 (Kang & Mussmann)
+*Test-split NEC and error rate of classifiers trained with an unweighted loss, mean of
+10 seeds. Error rate ÷ NEC: Jigsaw 2.92× (paper ~3×), Turkey any-injury 1.65×
+(head-only 1.51×; paper 1.6×), NHANES 1.37× (paper 1.5×). Synthetic is this repo's
+generated control with its own parameters, not comparable to the paper's ~9×.
+Static render of `outputs/figures/crossmodal.html`.*
+
+## Quick start
+
+```bash
+# Data-free smoke test (the CI smoke step): NEC reduces to error rate under uniform
+# costs, NEC < error rate when mistakes are low-cost, resampling is seed-deterministic
+pip install numpy pandas scikit-learn scipy pytest && pytest -q
+
+# Claim 1 on Jigsaw: downloads the data, overwrites the committed outputs/jigsaw_tfidf/*.csv
+uv sync
+uv run python scripts/prepare_jigsaw.py
+JIGSAW_N=300000 uv run python scripts/run_jigsaw_tfidf.py
+```
+
+Other datasets and claims: [Rerun](#rerun). Partial: Claims 3 and 5. Not reproduced:
+Claim 4 (fine-tuning, no GPU); iNaturalist is blocked. Per-claim status:
+[What reproduces](#what-reproduces).
+Live logbook: [Trackio Space](https://huggingface.co/spaces/vbabenko97/repro-instance-level-costs).
 
 ## What reproduces
 
@@ -79,15 +100,6 @@ minutes each. Claim 4 is a reduced-scale toy (no GPU available).
 - Jigsaw: HF `TheMrguiller/jigsaw-unintended-bias-in-toxicity-classification`
 - Turkey: Zenodo `10.5281/zenodo.8115942` (DCIC benchmark)
 - NHANES 2013–2014: CDC `wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2013/DataFiles/`
-
-## Quick check
-
-A fast, data-free smoke test verifies the metric's defining property (NEC reduces
-to error rate under uniform costs) and seed-determinism of the resampling strategy:
-
-```bash
-pip install numpy pandas scikit-learn scipy pytest && pytest -q
-```
 
 ## License and attribution
 
