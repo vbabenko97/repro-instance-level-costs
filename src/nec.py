@@ -140,7 +140,7 @@ def run_strategies(
 
 
 def summarize(rows: list[dict]) -> pd.DataFrame:
-    """Mean ± 95% CI over seeds per strategy, in percent (matches Table 2 format)."""
+    """Mean ± normal-approximation 95% interval over overlapping seeded splits."""
     df = pd.DataFrame(rows)
     out = []
     for strat, g in df.groupby("strategy", sort=False):

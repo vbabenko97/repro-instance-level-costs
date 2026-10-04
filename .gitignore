@@ -22,3 +22,6 @@ venv/
 # Local logbook / bucket artifacts (never publish)
 .trackio/
 .trackio_*/
+
+# Local design, audit reports, previews and original snapshots
+.local-review/

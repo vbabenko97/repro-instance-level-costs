@@ -2,11 +2,10 @@
 
 The seeds share train/test splits within a dataset, so the honest comparison is
 the PAIRED per-seed difference (regression - standard), not overlapping marginal
-CIs. Reports mean paired difference with a t-based 95% CI and whether the CI
-excludes zero, per dataset.
+CIs. Reports a descriptive nominal t interval for the overlapping seeded splits;
+it is not a population-significance claim.
 """
 
-import sys
 from pathlib import Path
 
 import numpy as np

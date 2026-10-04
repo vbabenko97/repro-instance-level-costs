@@ -1,109 +1,100 @@
-# Reproduction — "Instance-Level Costs for Nuanced Classifier Evaluation"
+# Reproduction — *Instance-Level Costs for Nuanced Classifier Evaluation*
 
-Agent-driven, independent reproduction of ICML 2026 paper #31878, Kang & Mussmann
-(OpenReview [`qMI1xD8O3x`](https://openreview.net/forum?id=qMI1xD8O3x), arXiv:2605.03135),
-for the HF × AlphaXiv ICML-2026 agent reproduction challenge. The paper proposes
-**Normalized Excess Cost (NEC)**, a metric that weights classification errors by
-per-example costs `|Δ|` and reduces to error rate when costs are uniform. This repo
-re-tests its claims on public text, image and tabular data.
+An agent-driven, independent reproduction of Kang & Mussmann's ICML 2026 paper
+[#31878](https://openreview.net/forum?id=qMI1xD8O3x) ([arXiv:2605.03135](https://arxiv.org/abs/2605.03135)) for the HF × AlphaXiv ICML-2026 agent reproduction challenge.
 
-![Grouped bar chart of NEC and error rate in percent: Jigsaw text 2.0 and 5.9, Turkey image 4.1 and 6.7, NHANES tabular 15.7 and 21.6, Synthetic 2.8 and 10.6](outputs/figures/crossmodal.png)
+The paper defines **Normalized Excess Cost (NEC)**: classification errors weighted
+by each example's cost `|Δ|`. With uniform costs, NEC equals ordinary error rate.
+This repository tests that mechanism and selected training claims on public text,
+image, and tabular inputs. It is not an official implementation or a peer review.
 
-*Test-split NEC and error rate of classifiers trained with an unweighted loss, mean of
-10 seeds. Error rate ÷ NEC: Jigsaw 2.92× (paper ~3×), Turkey any-injury 1.65×
-(head-only 1.51×; paper 1.6×), NHANES 1.37× (paper 1.5×). Synthetic is this repo's
-generated control with its own parameters, not comparable to the paper's ~9×.
-Static render of `outputs/figures/crossmodal.html`.*
+![Test-split NEC and error rate for the standard classifier: Jigsaw text 2.0 and 5.9, Turkey image 4.1 and 6.7, NHANES tabular 15.7 and 21.6, synthetic 2.8 and 10.6.](outputs/figures/crossmodal.png)
 
-## Quick start
+*Mean test-split metrics across 10 seed-specific splits. Error rate ÷ NEC is 2.92×
+for Jigsaw, 1.65× for Turkey (any-injury definition), and 1.37× for NHANES.
+Synthetic is this repository's control and is not a numerical reproduction of the
+paper. The underlying chart is [`outputs/figures/crossmodal.html`](outputs/figures/crossmodal.html).*
+
+## Try it
+
+The data-free smoke tests exercise the metric identity and deterministic sampling:
 
 ```bash
-# Data-free smoke test (the CI smoke step): NEC reduces to error rate under uniform
-# costs, NEC < error rate when mistakes are low-cost, resampling is seed-deterministic
-pip install numpy pandas scikit-learn scipy pytest && pytest -q
+pip install numpy pandas scikit-learn scipy pytest
+pytest -q
+```
 
-# Claim 1 on Jigsaw: downloads the data, overwrites the committed outputs/jigsaw_tfidf/*.csv
+To run experiments, use the lockfile-backed environment. The commands download
+source data and replace the corresponding committed result CSVs, so run them from
+a disposable working copy if you want to retain the historical outputs unchanged.
+
+```bash
 uv sync
 uv run python scripts/prepare_jigsaw.py
 JIGSAW_N=300000 uv run python scripts/run_jigsaw_tfidf.py
-```
-
-Other datasets and claims: [Rerun](#rerun). Partial: Claims 3 and 5. Not reproduced:
-Claim 4 (fine-tuning, no GPU); iNaturalist is blocked. Per-claim status:
-[What reproduces](#what-reproduces).
-Live logbook: [Trackio Space](https://huggingface.co/spaces/vbabenko97/repro-instance-level-costs).
-
-## What reproduces
-
-| Claim | Result | Scale |
-|---|---|---|
-| 1. Jigsaw NEC ≈ ⅓ error rate | 2.02 NEC / 5.91 error, **2.92x** (paper ~3x); TF-IDF fit on train splits only | real 1.8M data, 300k stratified subsample, 10 seeds |
-| 2. Divergence across modalities | Turkey 1.65x (any-injury; head-only 1.51x), NHANES 1.37x (paper 1.6x, 1.5x); iNat blocked | real data |
-| 3. Three cost sources (Eq. 3/4/rating) | partial — Eq. 3/4 verified on real data; rating transform synthetic demo only | real + synthetic |
-| 5. Cost-weighting inconsistent | partial — Turkey −11.6%, NHANES −1.9% match; Jigsaw +11.4% (harms; paper neutral); synthetic control neutral (paper −18.6%) | real data |
-| 6. Δ-regression = calibration not accuracy | MAE 0.325 (paper 0.30); reg NEC slightly lower everywhere, paired diff significant on Jigsaw (−0.06 pts) | real data |
-| 4. Fine-tuned Table 2 numbers | NOT reproduced — toy MPS probe only (exploratory) | reduced scale, no GPU |
-
-Blocked: iNaturalist (Gemini annotations unreleased), GPU fine-tuning (HF Jobs 402 — no credits).
-Integrity: `manifest.sha256` lists SHA-256 hashes of every payload file in this bundle (all files except the manifest itself).
-
-## Verification
-
-Produced as an agent-driven entry to the Hugging Face × AlphaXiv ICML-2026
-reproduction challenge. The published logbook was scored by the challenge's automated
-**Logbook Judge** (model `GLM-5.2`): the two headline claims graded **`verified`**
-(NEC ≪ error rate on real Jigsaw — 2.92x) and **`inconclusive`** (cost-weighted
-training benefits are inconsistent), overall quality **`high`**
-([public verdicts](https://huggingface.co/datasets/ICML-2026-agent-repro/verdicts)).
-This is automated challenge verification, not peer review.
-
-## Layout
-
-```
-src/nec.py                 core metric + cost derivations + training strategies
-scripts/prepare_jigsaw.py  download Jigsaw, recover votes -> data/jigsaw/jigsaw_delta.parquet
-scripts/run_jigsaw_tfidf.py  Claim 1/5/6 on text
-scripts/run_nhanes.py      Claim 2/5 on NHANES tabular (auto-downloads CDC XPT)
-scripts/run_turkey.py      Claim 2/5 on Turkey images (frozen ResNet-50 features)
-scripts/run_turkey_finetune.py  Claim 4 toy fine-tune (MPS)
-scripts/run_synthetic.py   Claim 5 synthetic control
-scripts/run_synthetic_sweep.py  Claim 5 sweep: weighting neutrality across N/sigma/d/C
-scripts/run_cost_derivation.py  Claim 3 cost equations + Fig. 2 histograms
-scripts/paired_regression_stats.py  Claim 6 paired per-seed regression-vs-standard test
-scripts/plot_nec_bars.py   figure helper
-outputs/                   per-seed CSVs, summaries, figures (committed)
-data/                      downloaded/derived inputs (NOT committed; regenerable)
-```
-
-## Rerun
-
-Requires `uv`. Data downloads are ~930 MB (Jigsaw parquet + Turkey.zip + NHANES XPT).
-
-```bash
-uv sync
-uv run python scripts/prepare_jigsaw.py          # -> data/jigsaw/jigsaw_delta.parquet
-JIGSAW_N=300000 uv run python scripts/run_jigsaw_tfidf.py
-uv run python scripts/run_nhanes.py              # auto-downloads CDC XPT
-uv run python scripts/run_turkey.py              # auto-downloads Turkey.zip, extracts ResNet features
+uv run python scripts/run_nhanes.py
+uv run python scripts/run_turkey.py
 uv run python scripts/run_synthetic.py
-uv run python scripts/run_synthetic_sweep.py     # Claim 5 config sweep
+uv run python scripts/run_synthetic_sweep.py
 uv run python scripts/run_cost_derivation.py
-uv run python scripts/paired_regression_stats.py # Claim 6 paired test (needs the runs above)
-FT_N=2500 FT_EPOCHS=12 uv run python scripts/run_turkey_finetune.py  # toy, MPS (reported config)
+uv run python scripts/paired_regression_stats.py
 ```
 
-All metric/mechanism claims (1, 2-NHANES/Turkey, 3, 5, 6) run on CPU/MPS in
-minutes each. Claim 4 is a reduced-scale toy (no GPU available).
+`run_turkey_finetune.py` is a reduced-scale MPS probe, not a reproduction of the
+paper's GPU fine-tuning result. See [reproduction notes](docs/reproducing.md) for
+inputs, outputs, and the limits of each run.
 
-## Provenance of data (all public, no credentials)
+## Results and scope
 
-- Jigsaw: HF `TheMrguiller/jigsaw-unintended-bias-in-toxicity-classification`
-- Turkey: Zenodo `10.5281/zenodo.8115942` (DCIC benchmark)
-- NHANES 2013–2014: CDC `wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2013/DataFiles/`
+| Paper claim | Result in this repository | Scope and limit |
+| --- | --- | --- |
+| Jigsaw has a large error-rate/NEC gap | 2.02% NEC and 5.91% error (2.92×) | 300k stratified subsample; train-only TF-IDF fit; 10 splits |
+| Gap occurs across modalities | Turkey: 1.65×; NHANES: 1.37× | Turkey uses frozen ResNet-50; iNaturalist cannot be evaluated because the paper's ratings are unavailable |
+| Three cost sources | Vote-margin and threshold-distance costs run on real data | Direct ratings are a synthetic demonstration only |
+| Cost-weighted training | Partial: Turkey −11.6%, NHANES −1.9%, Jigsaw +11.4% relative NEC | The Jigsaw and synthetic patterns differ from the paper |
+| Δ-regression | Jigsaw MAE 0.325; observed paired split differences are small | Repeated seed splits overlap, so nominal t intervals are descriptive, not population inference |
+| Fine-tuned results | Not reproduced | Three-seed Turkey top-block MPS probe is exploratory only |
 
-## License and attribution
+Result tables are versioned in [`outputs/`](outputs/). The current results are a
+historical run record: a rerun is expected to regenerate outputs, but has not been
+shown bitwise identical across environments. [`outputs/master_results.csv`](outputs/master_results.csv)
+keeps the paper-side comparison; [`outputs/claim6_paired.csv`](outputs/claim6_paired.csv)
+contains the paired split summaries.
 
-Reproduction code: MIT (see `LICENSE`). The paper, the datasets (Jigsaw, Turkey/DCIC,
-NHANES), and their sources retain their own terms; attribution and provenance are in
-`NOTICE` and the "Provenance of data" section above. This reproduction is not
-affiliated with or endorsed by the paper's authors.
+The Jigsaw vote counts are reconstructed from the dataset's aggregate toxicity
+fraction and annotator count (`round(toxicity × count)`), rather than obtained as
+individual votes; see [`scripts/prepare_jigsaw.py`](scripts/prepare_jigsaw.py).
+
+## Repository map
+
+```
+src/nec.py             NEC, cost derivations, splits, and training strategies
+scripts/               one executable script per experiment and figure
+tests/                 data-free metric and sampling checks
+outputs/               committed historical result CSVs and figures
+docs/reproducing.md    data sources, commands, outputs, and known limits
+docs/research-log/     portable index of the original experiment log
+docs/poster/           archived poster exports and source assets
+data/                  downloaded inputs and caches (ignored)
+```
+
+## Evidence and artifacts
+
+- [Reproduction notes](docs/reproducing.md) map every command to its inputs and outputs.
+- [Research-log index](docs/research-log/README.md) preserves the useful experiment record while keeping the original Trackio export local.
+- [Archived poster artifacts](docs/poster/README.md): the [preview](docs/poster/poster_preview.png) and [PDF](docs/poster/poster_preview.pdf) are historical exports with superseded significance wording; the [HTML source](docs/poster/poster.html) is revised to describe the paired result without population inference.
+- `manifest.sha256` hashes the published payload files; run `shasum -a 256 -c manifest.sha256` to check them.
+- The challenge's automated Logbook Judge reported the headline NEC/error claim as `verified` and the weighting claim as `inconclusive`; this is challenge automation, not peer review: [public verdicts](https://huggingface.co/datasets/ICML-2026-agent-repro/verdicts).
+
+## Data, license, and attribution
+
+The scripts retrieve Jigsaw from Hugging Face, Turkey/DCIC from Zenodo
+([10.5281/zenodo.8115942](https://doi.org/10.5281/zenodo.8115942)), and NHANES
+2013–2014 from the CDC. Raw source archives and large derived inputs are excluded.
+The small `outputs/nhanes/nhanes_prepared.csv` table is a derived research output
+and remains subject to the source data's terms. Details are in
+[`DATA_NOT_INCLUDED.md`](DATA_NOT_INCLUDED.md) and [`NOTICE`](NOTICE).
+
+The MIT license applies to the reproduction code and analysis authored here. The
+paper and datasets retain their own terms. Cite the original paper and data sources
+in downstream work.

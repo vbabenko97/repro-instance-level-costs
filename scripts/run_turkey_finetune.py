@@ -128,6 +128,7 @@ for seed in SEEDS:
     else:
         fn, fe = float("nan"), float("nan")
     # fine-tune top block
+    torch.manual_seed(seed)
     top = make_top()
     opt = torch.optim.AdamW(top.parameters(), lr=1e-4, weight_decay=1e-4)
     lossf = nn.BCEWithLogitsLoss()
@@ -152,10 +153,23 @@ m = df.mean(numeric_only=True) * 100
 print(f"\nTOY ({N_SUB} imgs, top-block FT, {EPOCHS} ep, {len(SEEDS)} seeds):")
 print(f"  frozen      NEC={m['frozen_nec']:.2f} error={m['frozen_error']:.2f}")
 print(f"  top-block FT NEC={m['ft_nec']:.2f} error={m['ft_error']:.2f}")
-print(f"  paper (full FT, GPU): frozen 4.2/6.7 -> ResNet-FT 2.3/4.8")
+print("  paper (full FT, GPU): frozen 4.2/6.7 -> ResNet-FT 2.3/4.8")
 
 out = ROOT / "outputs" / "turkey_ft"
 out.mkdir(parents=True, exist_ok=True)
+(out / "run_metadata.json").write_text(
+    json.dumps(
+        {
+            "device": device,
+            "epochs": EPOCHS,
+            "seeds": SEEDS,
+            "subset_size": len(paths),
+            "torch_version": torch.__version__,
+        },
+        indent=2,
+    )
+    + "\n"
+)
 df.to_csv(out / "per_seed.csv", index=False)
 pd.DataFrame(
     [

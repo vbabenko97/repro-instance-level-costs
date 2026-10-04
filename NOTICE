@@ -8,8 +8,9 @@ Paper reproduced:
   "Instance-Level Costs for Nuanced Classifier Evaluation" (Kang & Mussmann)
   ICML 2026 · OpenReview id qMI1xD8O3x · arXiv:2605.03135
 
-Data (NOT redistributed here; downloaded by the scripts from public sources under
-their own terms):
+Data (raw source archives are not redistributed; scripts download public sources
+under their own terms). The derived outputs/nhanes/nhanes_prepared.csv table is
+included as a research output and remains subject to its source terms:
   - Jigsaw Unintended Bias in Toxicity Classification — via Hugging Face dataset
     `TheMrguiller/jigsaw-unintended-bias-in-toxicity-classification`.
   - Turkey (DCIC benchmark) — Zenodo 10.5281/zenodo.8115942.

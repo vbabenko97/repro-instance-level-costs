@@ -3,6 +3,7 @@
 Checks the paper's defining property — NEC reduces to error rate when costs are
 uniform, and is dominated by errors on high-|Δ| examples — plus seed-determinism of
 the probability-proportional resampling. No downloads required."""
+
 import os
 import sys
 
@@ -11,7 +12,7 @@ import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-import nec  # noqa: E402
+import nec
 
 
 def test_nec_equals_error_rate_under_uniform_costs():
